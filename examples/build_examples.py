@@ -119,6 +119,70 @@ def complex_magnitude(base: Path) -> None:
     print(f"  wrote {path}  (complex64 — rendered as magnitude)")
 
 
+def _from_xr_tutorial(base: Path, name: str, dataset: str, summary: str) -> None:
+    """Pull a dataset from the xarray-data tutorial mirror and save as zarr v3.
+
+    Drops `time_bnds` (zarr v3 doesn't allow non-coord variables to share a
+    coord name with their dim) and any conflicting CF encodings that would
+    block `to_zarr`.
+    """
+    path = _out(base, name)
+    try:
+        import xarray as xr
+
+        ds = xr.tutorial.open_dataset(dataset)
+    except Exception as exc:
+        print(f"  skipped {name} (download failed: {exc})")
+        return
+    ds = ds.drop_vars([v for v in ("time_bnds",) if v in ds.variables], errors="ignore")
+    for v in ds.variables:
+        for attr in ("missing_value", "_FillValue"):
+            ds[v].attrs.pop(attr, None)
+            ds[v].encoding.pop(attr, None)
+    ds.to_zarr(path, mode="w", zarr_format=3, consolidated=False)
+    print(f"  wrote {path}  ({summary})")
+
+
+def air_temperature(base: Path) -> None:
+    """NCEP/NCAR reanalysis 2-m air temperature over North America."""
+    _from_xr_tutorial(
+        base,
+        "air_temperature.zarr",
+        "air_temperature",
+        "NCEP reanalysis, 2920 x 25 x 53 int16",
+    )
+
+
+def rasm(base: Path) -> None:
+    """RASM regional Arctic surface air temperature; ocean is NaN."""
+    _from_xr_tutorial(
+        base,
+        "rasm.zarr",
+        "rasm",
+        "RASM Arctic Tair, 36 x 205 x 275 float64, NaN over ocean",
+    )
+
+
+def eraint_uvz(base: Path) -> None:
+    """ERA-Interim global geopotential and winds, 4-D (month, level, lat, lon)."""
+    _from_xr_tutorial(
+        base,
+        "eraint_uvz.zarr",
+        "eraint_uvz",
+        "ERA-Interim z/u/v, 2 x 3 x 241 x 480 float64",
+    )
+
+
+def ersstv5(base: Path) -> None:
+    """NOAA Extended Reconstructed SST v5; land is NaN."""
+    _from_xr_tutorial(
+        base,
+        "ersstv5.zarr",
+        "ersstv5",
+        "NOAA ERSST v5, 624 x 89 x 180 float32, NaN over land",
+    )
+
+
 def nan_mask(base: Path) -> None:
     """2-D array with NaNs — should render as transparent pixels."""
     path = _out(base, "with_nans.zarr")
@@ -144,6 +208,10 @@ def main() -> None:
     microscopy(base)
     complex_magnitude(base)
     nan_mask(base)
+    air_temperature(base)
+    rasm(base)
+    eraint_uvz(base)
+    ersstv5(base)
     print("done.")
     print("\ntry:")
     print(f"  uv run zarrvis {base}")

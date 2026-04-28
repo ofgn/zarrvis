@@ -248,14 +248,15 @@ function renderInfoStrip(info) {
             el("span", { class: "label", text: label }),
             el("span", { class: "val", text: val }),
         ]);
-    strip.replaceChildren(
+    const items = [
         kv("path", info.path),
         kv("shape", info.shape.join(" × ")),
         kv("dtype", info.dtype),
         kv("chunks", info.chunks ? info.chunks.join(" × ") : "—"),
         info.shards ? kv("shards", info.shards.join(" × ")) : null,
-        info.dims ? kv("dims", info.dims.join(", ")) : null
-    );
+        info.dims ? kv("dims", info.dims.join(", ")) : null,
+    ].filter(Boolean);
+    strip.replaceChildren(...items);
     if (info.unsupported_reason && info.renderable) {
         strip.appendChild(kv("note", info.unsupported_reason));
     }

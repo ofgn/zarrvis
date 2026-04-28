@@ -48,12 +48,17 @@ def _looks_remote(path: str) -> bool:
 
 
 def _remote_mapper(url: str) -> Any:
-    """Return an fsspec mapper wrapped in a local cache."""
+    """Return an fsspec mapper for a remote URL.
+
+    Sync filesystems (typically `https://`) are wrapped in fsspec's on-disk
+    `CachingFileSystem`. Async filesystems (`s3://`, `gs://`) are passed
+    through bare: `CachingFileSystem` is sync-only and zarr v3's fsspec store
+    drives the async API path, so wrapping an async fs would crash on the
+    first chunk read.
+    """
     import fsspec
     from fsspec.implementations.cached import CachingFileSystem
 
-    cache_dir = Path.home() / ".cache" / "zarrvis" / "fsspec"
-    cache_dir.mkdir(parents=True, exist_ok=True)
     try:
         fs, fs_path = fsspec.core.url_to_fs(url)
     except ImportError as exc:
@@ -63,6 +68,10 @@ def _remote_mapper(url: str) -> Any:
         ) from exc
     except Exception as exc:
         raise BadRequest(f"cannot parse remote URL: {exc}") from exc
+    if getattr(fs, "async_impl", False):
+        return fs.get_mapper(fs_path)
+    cache_dir = Path.home() / ".cache" / "zarrvis" / "fsspec"
+    cache_dir.mkdir(parents=True, exist_ok=True)
     cached = CachingFileSystem(
         target_protocol=fs.protocol if isinstance(fs.protocol, str) else fs.protocol[0],
         target_options=fs.storage_options,
@@ -77,7 +86,7 @@ def open_store(path: str | Path) -> Node:
     store_arg: Any = _remote_mapper(path_str) if _looks_remote(path_str) else path_str
     try:
         return zarr.open_consolidated(store_arg, mode="r")
-    except (KeyError, FileNotFoundError, NotImplementedError, ValueError) as exc:
+    except Exception as exc:
         logger.debug("consolidated open failed (%s); falling back to zarr.open", exc)
     try:
         return zarr.open(store_arg, mode="r")

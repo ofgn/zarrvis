@@ -1,45 +1,47 @@
 # Example zarr stores
 
-Five synthetic zarrs to explore with `zarrvis`:
+Nine zarrs to play with. Four real (xarray-data tutorial mirror), five
+synthetic.
 
-| File | Shape | Dtype | What it exercises |
+| File | Shape | Dtype | Notes |
 |---|---|---|---|
-| `rings.zarr` | (64, 256, 256) | float32 | 3-D stack, z-scrubbing, auto-contrast |
-| `climate.zarr` | (24, 181, 361) | float32 + xarray | coord-aware axis labels, time slider showing dates |
-| `microscopy.zarr` | (3, 16, 256, 256) | uint16 | 4-D sliders (channel + z), integer dtype |
-| `complex_wave.zarr` | (256, 256) | complex64 | complex rendered as magnitude |
-| `with_nans.zarr` | (128, 128) | float32 | NaN → transparent pixels |
+| `air_temperature.zarr` | (2920, 25, 53) | int16, xarray | NCEP/NCAR reanalysis 2-m air temperature over North America |
+| `rasm.zarr` | (36, 205, 275) | float64, xarray | RASM regional Arctic surface air temperature; ocean is NaN |
+| `eraint_uvz.zarr` | (2, 3, 241, 480) | float64, xarray | ERA-Interim global geopotential and winds, `(month, level, lat, lon)` |
+| `ersstv5.zarr` | (624, 89, 180) | float32, xarray | NOAA Extended Reconstructed SST v5; land is NaN |
+| `rings.zarr` | (64, 256, 256) | float32 | synthetic 3-D stack |
+| `climate.zarr` | (24, 181, 361) | float32, xarray | synthetic xarray dataset with `lat`/`lon` coords |
+| `microscopy.zarr` | (3, 16, 256, 256) | uint16 | synthetic 4-D, `(channel, z, y, x)` |
+| `complex_wave.zarr` | (256, 256) | complex64 | rendered as magnitude |
+| `with_nans.zarr` | (128, 128) | float32 | synthetic circular NaN mask |
 
-## Generate them
+The real-data fetches need the dev extras (`pooch` + `netcdf4`); without
+them, those four are skipped with a hint and the synthetic ones still build.
 
-```bash
-uv run python examples/build_examples.py
-```
-
-This writes to `examples/stores/`. Pass a different directory to override:
-
-```bash
-uv run python examples/build_examples.py /tmp/zarrvis_stores
-```
-
-## Open in zarrvis
-
-Open one store, then swap between the others via the **path input** at the top
-of the UI (type a path, press Enter):
+## Generate
 
 ```bash
-uv run zarrvis examples/stores/climate.zarr
+uv run python examples/build_examples.py             # → examples/stores/
+uv run python examples/build_examples.py /tmp/out    # → /tmp/out/
 ```
 
-`zarrvis` prints a URL with a session token; open it in your browser. The
-path input accepts any path under the CLI's `--root` allowlist (default: the
-parent of the first store), so you can quickly swap between all five
-examples without restarting the server.
+## Open
 
-## What to try
+```bash
+uv run zarrvis examples/stores/air_temperature.zarr
+```
 
-- On **climate.zarr**, note the axis labels switch to `lat`/`lon` (not `axis 1`/`axis 2`), and the time slider shows dates like `2024-01-15`.
-- On **rings.zarr**, drag the z slider fast — you should see in-flight requests cancel (no stale frames).
-- On **microscopy.zarr**, swap the "row axis" picker to `z` (axis 1) to look at an orthogonal section.
-- On **complex_wave.zarr**, the info strip shows `complex dtype renders as magnitude`.
-- On **with_nans.zarr**, change the colormap to `RdBu_r` — the NaN mask stays transparent.
+The path input at the top of the UI accepts any path under the CLI's
+`--root` allowlist, so you can swap between stores without restarting.
+
+## Things to try
+
+- `air_temperature.zarr`: scrub `time` and watch the seasonal pattern shift.
+- `ersstv5.zarr` (`/sst`): pick `RdBu_r`, scrub `time` over the 624 monthly
+  steps, watch the ENSO Pacific tongue come and go.
+- `rasm.zarr` (`/Tair`): the ocean NaN mask renders the coastline.
+- `eraint_uvz.zarr`: 4-D, so you get sliders for both `month` and `level`.
+- `rings.zarr`: drag the z slider fast — in-flight requests cancel, no
+  stale frames.
+- `microscopy.zarr`: switch the row-axis picker to `z` for an orthogonal
+  section.
