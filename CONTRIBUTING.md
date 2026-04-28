@@ -1,6 +1,6 @@
 # Contributing
 
-zarrvis is small and tries to stay that way. Bug fixes and patches that cut
+ZarrVis is small and tries to stay that way. Bug fixes and patches that cut
 complexity are very welcome.
 
 ## Setup
@@ -16,7 +16,7 @@ uv run pytest -q
 - **uv** for envs and deps; `uv.lock` is committed.
 - **ruff** for lint and format.
 - **pytest** with `fastapi.testclient.TestClient` for the API tests.
-- **ty** (Astral, alpha) — CI runs it as advisory.
+- **ty** (Astral, alpha). CI runs it as advisory.
 
 ## Layout
 

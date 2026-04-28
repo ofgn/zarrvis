@@ -41,7 +41,7 @@ The path input at the top of the UI accepts any path under the CLI's
   steps, watch the ENSO Pacific tongue come and go.
 - `rasm.zarr` (`/Tair`): the ocean NaN mask renders the coastline.
 - `eraint_uvz.zarr`: 4-D, so you get sliders for both `month` and `level`.
-- `rings.zarr`: drag the z slider fast — in-flight requests cancel, no
+- `rings.zarr`: drag the z slider fast; in-flight requests cancel, no
   stale frames.
 - `microscopy.zarr`: switch the row-axis picker to `z` for an orthogonal
   section.

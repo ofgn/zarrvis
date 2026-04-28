@@ -1,4 +1,4 @@
-# zarrvis
+# ZarrVis
 
 [![CI](https://github.com/ofgn/zarrvis/actions/workflows/ci.yml/badge.svg)](https://github.com/ofgn/zarrvis/actions/workflows/ci.yml)
 [![Python 3.12+](https://img.shields.io/badge/python-3.12%2B-blue.svg)](https://www.python.org/downloads/)
@@ -9,12 +9,12 @@ or labelled [xarray](https://xarray.dev/) /
 [OME-Zarr](https://ngff.openmicroscopy.org/) stores. Local paths or remote
 `s3://` / `gs://` / `https://` URLs.
 
-![NCEP reanalysis 2-m air temperature over North America](docs/screenshots/hero.png)
+![ERA-Interim global geopotential height with the turbo colormap](docs/screenshots/hero.png)
 
 ## Status
 
 Experimental (v0.1.0). Probably has rough edges. If you hit one, please
-[open an issue](https://github.com/ofgn/zarrvis/issues) — a `zarr.tree()`
+[open an issue](https://github.com/ofgn/zarrvis/issues). A `zarr.tree()`
 dump and the `--verbose` traceback are usually enough.
 
 ## Install
@@ -47,10 +47,10 @@ zarrvis [PATH] [--host 127.0.0.1] [--port 8765]
 
 ## Gallery
 
-| RASM Arctic Tair | ERA-Interim 4-D | NOAA ERSST v5 |
+| RASM Arctic Tair | NOAA ERSST v5 | NCEP air temperature |
 |---|---|---|
-| ![](docs/screenshots/rasm.png) | ![](docs/screenshots/eraint.png) | ![](docs/screenshots/ersst.png) |
-| Regional Arctic surface air temperature, ocean NaN | Global geopotential, sliders over `month` and `level` | Global sea-surface temperature, land NaN |
+| ![](docs/screenshots/rasm.png) | ![](docs/screenshots/ersst.png) | ![](docs/screenshots/air_temperature.png) |
+| Regional Arctic surface air temperature, ocean NaN | Global sea-surface temperature, land NaN | NCEP/NCAR reanalysis 2-m air temp over North America |
 
 All four shots are real datasets pulled from the xarray tutorial mirror by
 [examples/build_examples.py](examples/build_examples.py). Reproduce with
@@ -66,41 +66,6 @@ All four shots are real datasets pulled from the xarray tutorial mirror by
 | `datetime64` | works | rendered as seconds-since-epoch |
 | `complex64/128` | partial | rendered as `\|z\|` |
 | `object` / strings | no | tree shows why |
-
-## API
-
-All routes live under `/api/*` and require the session token.
-
-| Route | Returns |
-|---|---|
-| `GET /api/health` | status, version, allowlist |
-| `GET /api/tree?path=…` | groups/arrays with shape, dtype, chunks, dims, attrs |
-| `GET /api/slice?path=…&array=…&indices=…&axes=…&max_px=…` | binary frame: `[u32 header_len][json][float32]` |
-| `GET /api/stats?…` | percentiles (2/98), min/max, 64-bin histogram |
-| `GET /api/coords?path=…&array=…&axis=…` | coord values for an axis |
-
-```python
-import httpx, struct, json, numpy as np
-
-r = httpx.get(
-    "http://127.0.0.1:8765/api/slice",
-    params={"path": "/data/store.zarr", "indices": "[3, null, null]", "token": TOKEN},
-)
-buf = r.content
-(hlen,) = struct.unpack("<I", buf[:4])
-header = json.loads(buf[4:4 + hlen])
-data = np.frombuffer(buf[4 + hlen:], dtype="float32").reshape(header["rows"], header["cols"])
-```
-
-## Security
-
-Built to run on your laptop, not on the open internet.
-
-- Binds `127.0.0.1`.
-- Per-session token in every `/api/*` request.
-- `Host` header restricted to `localhost` / `127.0.0.1` / `::1`.
-- `path` is resolved and checked against `--root`.
-- `s3://` / `gs://` / `https://` need `--allow-remote`.
 
 ## Development
 

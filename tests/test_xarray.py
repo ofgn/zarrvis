@@ -47,8 +47,8 @@ def test_find_coord_array_time(xarray_zarr_v3: Path) -> None:
     time = find_coord_array(root, "/t2m", "time")
     assert time is not None
     values, dtype = coord_to_json_values(time)
-    # xarray writes time as int with CF units — coord values here are raw ints,
-    # not decoded datetimes. Ensure the module doesn't crash on them.
+    # xarray writes time as int with CF units, so coord values here are raw
+    # ints, not decoded datetimes. Ensure the module doesn't crash on them.
     assert len(values) == 3
     assert dtype in {"int64", "datetime64"}
 

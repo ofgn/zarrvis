@@ -252,7 +252,7 @@ function renderInfoStrip(info) {
         kv("path", info.path),
         kv("shape", info.shape.join(" × ")),
         kv("dtype", info.dtype),
-        kv("chunks", info.chunks ? info.chunks.join(" × ") : "—"),
+        kv("chunks", info.chunks ? info.chunks.join(" × ") : "-"),
         info.shards ? kv("shards", info.shards.join(" × ")) : null,
         info.dims ? kv("dims", info.dims.join(", ")) : null,
     ].filter(Boolean);
@@ -377,8 +377,8 @@ function renderControls(info) {
             recolor();
         },
     });
-    const vminLabel = el("span", { class: "value", id: "vmin-label", text: "—" });
-    const vmaxLabel = el("span", { class: "value", id: "vmax-label", text: "—" });
+    const vminLabel = el("span", { class: "value", id: "vmin-label", text: "-" });
+    const vmaxLabel = el("span", { class: "value", id: "vmax-label", text: "-" });
     const autoBtn = el("button", {
         text: "auto",
         onclick: () => {

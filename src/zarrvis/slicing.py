@@ -7,8 +7,8 @@ Wire format for a 2-D slice returned by /api/slice:
 The JSON header is UTF-8 and carries `rows`, `cols`, `stride`, axes, indices,
 and min/max of the payload (NaN-safe). The payload is C-contiguous float32.
 
-``header_len`` is always a multiple of 4 — the JSON is right-padded with
-trailing spaces if needed — so that the float32 payload begins at a 4-byte
+``header_len`` is always a multiple of 4 (the JSON is right-padded with
+trailing spaces if needed) so that the float32 payload begins at a 4-byte
 aligned offset. That lets the browser construct ``new Float32Array(buffer,
 offset, length)`` without copying.
 """
@@ -146,8 +146,8 @@ def _to_float32_2d(sliced: np.ndarray, axes: tuple[int, int]) -> np.ndarray:
     elif arr.dtype.kind == "b":
         arr = arr.astype("float32")
     arr = arr.astype("float32", copy=False)
-    # If the row_axis index > col_axis index, the squeezed order is (col, row)
-    # — transpose so the output is always (row_axis, col_axis).
+    # If the row_axis index > col_axis index, the squeezed order is (col, row),
+    # so transpose to make the output (row_axis, col_axis).
     if axes[0] > axes[1]:
         arr = arr.T
     return np.ascontiguousarray(arr)

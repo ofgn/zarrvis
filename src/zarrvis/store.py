@@ -247,7 +247,7 @@ def find_coord_array(root: Node, array_path: str, dim_name: str) -> zarr.Array |
 
 
 def coord_to_json_values(arr: zarr.Array) -> tuple[list[Any], str]:
-    """Return (values, rendered_dtype) — strings for datetime, numbers otherwise."""
+    """Return (values, rendered_dtype): strings for datetime, numbers otherwise."""
     data = arr[:]
     kind = arr.dtype.kind
     if kind == "M":

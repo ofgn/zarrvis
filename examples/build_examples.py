@@ -1,4 +1,4 @@
-"""Generate a handful of example zarr stores for exploring zarrvis.
+"""Generate a handful of example zarr stores for exploring ZarrVis.
 
 Usage (from the repo root):
 
@@ -32,7 +32,7 @@ def _out(base: Path, name: str) -> str:
 
 
 def rings(base: Path) -> None:
-    """3-D concentric rings — lets you scrub z and see the pattern evolve."""
+    """3-D concentric rings; scrub z to see the pattern evolve."""
     path = _out(base, "rings.zarr")
     nz, ny, nx = 64, 256, 256
     arr = zarr.create_array(
@@ -107,7 +107,7 @@ def microscopy(base: Path) -> None:
 
 
 def complex_magnitude(base: Path) -> None:
-    """Complex-valued array — zarrvis renders the magnitude."""
+    """Complex-valued array; ZarrVis renders the magnitude."""
     path = _out(base, "complex_wave.zarr")
     ny, nx = 256, 256
     y, x = np.mgrid[:ny, :nx]
@@ -116,7 +116,7 @@ def complex_magnitude(base: Path) -> None:
         store=path, shape=(ny, nx), chunks=(64, 64), dtype="complex64", zarr_format=3
     )
     arr[:] = wave.astype("complex64")
-    print(f"  wrote {path}  (complex64 — rendered as magnitude)")
+    print(f"  wrote {path}  (complex64, rendered as magnitude)")
 
 
 def _from_xr_tutorial(base: Path, name: str, dataset: str, summary: str) -> None:
@@ -184,7 +184,7 @@ def ersstv5(base: Path) -> None:
 
 
 def nan_mask(base: Path) -> None:
-    """2-D array with NaNs — should render as transparent pixels."""
+    """2-D array with NaNs; should render as transparent pixels."""
     path = _out(base, "with_nans.zarr")
     ny, nx = 128, 128
     y, x = np.mgrid[:ny, :nx]

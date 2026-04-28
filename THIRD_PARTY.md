@@ -18,5 +18,5 @@ matplotlib. See <https://ai.googleblog.com/2019/08/turbo-improved-rainbow-colorm
 
 ## Frontend libraries (loaded at runtime from CDN)
 
-- [Plotly.js](https://plotly.com/javascript/) — MIT. Loaded via
+- [Plotly.js](https://plotly.com/javascript/), MIT. Loaded via
   `cdn.plot.ly` in [src/zarrvis/static/index.html](src/zarrvis/static/index.html).

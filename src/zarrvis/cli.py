@@ -52,7 +52,7 @@ def _open_browser_soon(url: str, delay: float = 0.6) -> None:
 def _parse_args(argv: list[str] | None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         prog="zarrvis",
-        description="Clean, sleek browser visualization of zarr files.",
+        description="Browser viewer for zarr files.",
     )
     parser.add_argument("path", nargs="?", help="Path to a zarr store (local path or fsspec URL).")
     parser.add_argument("--host", default="127.0.0.1", help="Bind host (default: 127.0.0.1).")
@@ -72,7 +72,7 @@ def _parse_args(argv: list[str] | None) -> argparse.Namespace:
     )
     parser.add_argument("--no-browser", action="store_true", help="Do not auto-open a browser.")
     parser.add_argument("--verbose", "-v", action="store_true", help="Enable DEBUG logging.")
-    parser.add_argument("--version", action="version", version=f"zarrvis {__version__}")
+    parser.add_argument("--version", action="version", version=f"ZarrVis {__version__}")
     return parser.parse_args(argv)
 
 
@@ -129,7 +129,7 @@ def main(argv: list[str] | None = None) -> int:
     url = _build_url(args.host, port, token)
     banner = [
         "",
-        "  zarrvis " + __version__,
+        "  ZarrVis " + __version__,
         "  ──────────────────────────────────────────────",
         f"  root     : {root}",
         f"  remote   : {'enabled' if args.allow_remote else 'disabled'}",

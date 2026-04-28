@@ -5,9 +5,9 @@
 #     "httpx>=0.27",
 # ]
 # ///
-"""Capture screenshots of zarrvis against the example stores.
+"""Capture screenshots of ZarrVis against the example stores.
 
-Boots a zarrvis server, drives a headless Chromium through fixed view-state
+Boots a ZarrVis server, drives a headless Chromium through fixed view-state
 URLs, and writes PNGs to docs/screenshots/.
 
 Usage (from the repo root):
@@ -39,7 +39,7 @@ REPO = Path(__file__).resolve().parent.parent
 STORES = REPO / "examples" / "stores"
 OUT = REPO / "docs" / "screenshots"
 # Stores are copied here before the screenshot run so the path shown in the
-# zarrvis address bar is a neutral location, not the user's home directory.
+# ZarrVis address bar is a neutral location, not the user's home directory.
 STAGE = Path("/tmp/zarrvis-demo/stores")
 
 VIEWPORT = {"width": 1440, "height": 900}
@@ -59,27 +59,27 @@ class Shot:
 SHOTS: list[Shot] = [
     Shot(
         "hero",
-        "air_temperature.zarr",
-        indices=[0, None, None],
-        axes=[1, 2],
-        cmap="RdBu_r",
-    ),
-    Shot("rasm", "rasm.zarr", indices=[0, None, None], axes=[1, 2], cmap="viridis"),
-    Shot(
-        "eraint",
         "eraint_uvz.zarr",
         indices=[0, 1, None, None],
         axes=[2, 3],
-        cmap="RdBu_r",
+        cmap="turbo",
     ),
+    Shot("rasm", "rasm.zarr", indices=[20, None, None], axes=[1, 2], cmap="inferno"),
     Shot("ersst", "ersstv5.zarr", indices=[600, None, None], axes=[1, 2], cmap="RdBu_r"),
+    Shot(
+        "air_temperature",
+        "air_temperature.zarr",
+        indices=[0, None, None],
+        axes=[1, 2],
+        cmap="turbo",
+    ),
 ]
 
 
 def ensure_examples() -> None:
     if STORES.exists() and any(STORES.iterdir()):
         return
-    print("examples/stores/ missing — running build_examples.py", flush=True)
+    print("examples/stores/ missing, running build_examples.py", flush=True)
     subprocess.run([sys.executable, str(REPO / "examples" / "build_examples.py")], check=True)
 
 
@@ -124,7 +124,7 @@ def wait_for_health(base: str, token: str, timeout_s: float = 15.0) -> None:
         except Exception as exc:
             last_exc = exc
         time.sleep(0.1)
-    raise RuntimeError(f"zarrvis did not come up in {timeout_s}s: {last_exc}")
+    raise RuntimeError(f"ZarrVis did not come up in {timeout_s}s: {last_exc}")
 
 
 def resolve_array_path(base: str, token: str, store_path: Path) -> str:
@@ -174,11 +174,11 @@ def build_url(base: str, token: str, store_path: Path, array: str, shot: Shot) -
 
 
 def start_zarrvis(port: int) -> tuple[subprocess.Popen[str], str]:
-    """Start zarrvis pointed at the staged stores; return (proc, token).
+    """Start ZarrVis pointed at the staged stores; return (proc, token).
 
-    Invokes the project venv's zarrvis via `uv run` rather than `sys.executable`,
-    because this PEP 723 script runs in its own ephemeral environment that does
-    not have zarrvis installed.
+    Invokes the project venv's `zarrvis` CLI via `uv run` rather than
+    `sys.executable`, because this PEP 723 script runs in its own ephemeral
+    environment that does not have the package installed.
     """
     proc = subprocess.Popen(
         [
@@ -208,14 +208,14 @@ def start_zarrvis(port: int) -> tuple[subprocess.Popen[str], str]:
         line = proc.stdout.readline()
         if not line:
             if proc.poll() is not None:
-                raise RuntimeError("zarrvis exited before printing URL")
+                raise RuntimeError("ZarrVis exited before printing URL")
             continue
         if "url" in line and "token=" in line:
             token = line.split("token=")[-1].strip()
             break
     if not token:
         proc.terminate()
-        raise RuntimeError("did not see zarrvis URL in stdout")
+        raise RuntimeError("did not see ZarrVis URL in stdout")
     return proc, token
 
 
@@ -231,7 +231,7 @@ def main() -> int:
     proc, token = start_zarrvis(port)
     try:
         wait_for_health(base, token)
-        print(f"zarrvis up on {base}", flush=True)
+        print(f"ZarrVis up on {base}", flush=True)
 
         with sync_playwright() as p:
             browser = p.chromium.launch(headless=True)
