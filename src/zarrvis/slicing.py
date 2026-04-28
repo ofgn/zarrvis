@@ -6,6 +6,11 @@ Wire format for a 2-D slice returned by /api/slice:
 
 The JSON header is UTF-8 and carries `rows`, `cols`, `stride`, axes, indices,
 and min/max of the payload (NaN-safe). The payload is C-contiguous float32.
+
+``header_len`` is always a multiple of 4 — the JSON is right-padded with
+trailing spaces if needed — so that the float32 payload begins at a 4-byte
+aligned offset. That lets the browser construct ``new Float32Array(buffer,
+offset, length)`` without copying.
 """
 
 from __future__ import annotations
@@ -182,6 +187,9 @@ def compute_slice(arr: zarr.Array, req: SliceRequest) -> tuple[np.ndarray, dict[
 def encode_frame(data: np.ndarray, header: dict[str, Any]) -> bytes:
     payload = data.astype("float32", copy=False).tobytes(order="C")
     header_bytes = json.dumps(header, separators=(",", ":")).encode("utf-8")
+    pad = (-len(header_bytes)) % 4
+    if pad:
+        header_bytes = header_bytes + b" " * pad
     return struct.pack("<I", len(header_bytes)) + header_bytes + payload
 
 

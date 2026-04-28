@@ -58,7 +58,16 @@ function decodeFrame(buf) {
     const headerLen = dv.getUint32(0, true);
     const headerBytes = new Uint8Array(buf, 4, headerLen);
     const header = JSON.parse(new TextDecoder().decode(headerBytes));
-    const payload = new Float32Array(buf, 4 + headerLen, header.rows * header.cols);
+    const payloadOffset = 4 + headerLen;
+    const payloadLen = header.rows * header.cols;
+    let payload;
+    if (payloadOffset % 4 === 0) {
+        payload = new Float32Array(buf, payloadOffset, payloadLen);
+    } else {
+        // Unaligned frame (shouldn't happen with current server; be defensive).
+        const copy = buf.slice(payloadOffset, payloadOffset + payloadLen * 4);
+        payload = new Float32Array(copy);
+    }
     return { header, data: payload };
 }
 

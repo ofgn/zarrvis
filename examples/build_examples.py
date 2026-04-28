@@ -42,9 +42,9 @@ def rings(base: Path) -> None:
     cy, cx = ny / 2, nx / 2
     r = np.sqrt((y - cy) ** 2 + (x - cx) ** 2)
     for z in range(nz):
-        arr[z] = np.sin(0.18 * r - 0.2 * z).astype("float32") + 0.15 * np.random.randn(ny, nx).astype(
-            "float32"
-        )
+        arr[z] = np.sin(0.18 * r - 0.2 * z).astype("float32") + 0.15 * np.random.randn(
+            ny, nx
+        ).astype("float32")
     print(f"  wrote {path}")
 
 
@@ -54,7 +54,6 @@ def climate(base: Path) -> None:
     n_time = 24
     lat = np.linspace(-90, 90, 181)
     lon = np.linspace(-180, 180, 361)
-    t = np.arange(n_time)
     lat_grid, lon_grid = np.meshgrid(lat, lon, indexing="ij")
     base_temp = (
         15
@@ -71,12 +70,18 @@ def climate(base: Path) -> None:
         [f"2024-{((i % 12) + 1):02d}-15" for i in range(n_time)], dtype="datetime64[ns]"
     )
     ds = xr.Dataset(
-        {"t2m": (("time", "lat", "lon"), data, {"units": "degC", "long_name": "2m air temperature"})},
+        {
+            "t2m": (
+                ("time", "lat", "lon"),
+                data,
+                {"units": "degC", "long_name": "2m air temperature"},
+            )
+        },
         coords={"time": times, "lat": lat, "lon": lon},
         attrs={"source": "zarrvis synthetic example", "variable": "t2m"},
     )
     ds.to_zarr(path, mode="w", zarr_format=3, consolidated=False)
-    print(f"  wrote {path}  (xarray, 24 × 181 × 361 float32)")
+    print(f"  wrote {path}  (xarray, 24 x 181 x 361 float32)")
 
 
 def microscopy(base: Path) -> None:
@@ -98,7 +103,7 @@ def microscopy(base: Path) -> None:
             frame = (2000 * falloff + noise).clip(0, 65535).astype("uint16")
             arr[c, z] = frame
     arr.attrs["_ARRAY_DIMENSIONS"] = ["channel", "z", "y", "x"]
-    print(f"  wrote {path}  (3 × 16 × 256 × 256 uint16)")
+    print(f"  wrote {path}  (3 x 16 x 256 x 256 uint16)")
 
 
 def complex_magnitude(base: Path) -> None:

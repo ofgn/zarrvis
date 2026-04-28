@@ -148,3 +148,21 @@ def test_encode_decode_roundtrip() -> None:
     assert h["rows"] == 17
     assert h["foo"] == [1, 2, 3]
     assert np.array_equal(dec, data)
+
+
+def test_encode_frame_header_is_4byte_aligned() -> None:
+    """Float32Array in the browser requires the payload offset to be %4 == 0."""
+    import struct
+
+    data = np.zeros((4, 4), dtype="float32")
+    # Force varied header lengths by stuffing different-sized values.
+    for stuff in ["x", "xx", "xxx", "a" * 17, "b" * 199]:
+        header = {"rows": 4, "cols": 4, "stuff": stuff}
+        frame = encode_frame(data, header)
+        (header_len,) = struct.unpack("<I", frame[:4])
+        assert header_len % 4 == 0, f"header_len={header_len} for stuff={stuff!r}"
+        assert (4 + header_len) % 4 == 0
+        # Round-trip still works after padding
+        dec, h = decode_frame(frame)
+        assert h["stuff"] == stuff
+        assert np.array_equal(dec, data)
