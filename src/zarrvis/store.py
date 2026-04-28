@@ -205,6 +205,8 @@ def resolve_array(root: Node, array_path: str) -> zarr.Array:
         raise BadRequest("array_path must point to an array, not the root group")
     node: Node = root
     for p in parts:
+        if not isinstance(node, zarr.Group):
+            raise NotFound(f"path not found in store: {array_path}")
         try:
             node = node[p]
         except KeyError as exc:
@@ -248,7 +250,7 @@ def find_coord_array(root: Node, array_path: str, dim_name: str) -> zarr.Array |
 
 def coord_to_json_values(arr: zarr.Array) -> tuple[list[Any], str]:
     """Return (values, rendered_dtype): strings for datetime, numbers otherwise."""
-    data = arr[:]
+    data = np.asarray(arr[:])
     kind = arr.dtype.kind
     if kind == "M":
         iso = np.datetime_as_string(data.astype("datetime64[ns]"), unit="auto")
@@ -260,4 +262,4 @@ def coord_to_json_values(arr: zarr.Array) -> tuple[list[Any], str]:
     if kind == "b":
         return [bool(x) for x in data.tolist()], "bool"
     # numeric
-    return [float(x) for x in np.asarray(data, dtype="float64").tolist()], str(arr.dtype)
+    return [float(x) for x in data.astype("float64").tolist()], str(arr.dtype)

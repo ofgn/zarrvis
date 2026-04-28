@@ -61,7 +61,7 @@ All four shots are real datasets pulled from the xarray tutorial mirror by
 | Kind | Status | Notes |
 |---|---|---|
 | `float16/32/64` | works | |
-| `int*` / `uint*` | works | upcast to float32 on the wire |
+| `int*` / `uint*` | works | sent to the browser as float32 |
 | `bool` | works | 0/1 |
 | `datetime64` | works | rendered as seconds-since-epoch |
 | `complex64/128` | partial | rendered as `\|z\|` |

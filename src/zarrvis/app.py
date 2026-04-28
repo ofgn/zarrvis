@@ -41,7 +41,7 @@ def create_app(
     app.state.initial_path = initial_path
     app.state.allow_remote = allow_remote
 
-    app.add_middleware(TokenMiddleware, token=token)
+    app.add_middleware(TokenMiddleware, token=token)  # ty: ignore[invalid-argument-type]
     app.add_middleware(HostHeaderMiddleware)
 
     register_exception_handlers(app)
