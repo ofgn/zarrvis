@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>zarrvis</title>
+<link rel="preconnect" href="https://rsms.me/" />
+<link rel="stylesheet" href="https://rsms.me/inter/inter.css" />
+<link rel="stylesheet" href="/static/app.css" />
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js" charset="utf-8"></script>
+</head>
+<body>
+<header class="topbar">
+    <div class="brand">
+        <span class="logo" aria-hidden="true">◩</span>
+        <span class="name">zarrvis</span>
+        <span class="version" id="version"></span>
+    </div>
+    <div class="path-input">
+        <input id="path" type="text" placeholder="path to a .zarr store…" autocomplete="off" />
+        <button id="open-btn" type="button">Open</button>
+    </div>
+    <div class="status" id="status"></div>
+</header>
+<main class="layout">
+    <aside class="tree-pane">
+        <div class="pane-title">Tree</div>
+        <div class="tree" id="tree"><p class="muted">no store opened</p></div>
+    </aside>
+    <section class="viewer-pane">
+        <div class="info-strip" id="info"></div>
+        <div class="controls" id="controls"></div>
+        <div class="plot" id="plot"></div>
+    </section>
+</main>
+<div class="toast-host" id="toasts"></div>
+<script type="module" src="/static/app.js"></script>
+</body>
+</html>

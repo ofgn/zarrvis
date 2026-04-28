@@ -1,0 +1,70 @@
+[project]
+name = "zarrvis"
+version = "0.1.0"
+description = "Clean, production-ready, sleek browser visualization of zarr files."
+readme = "README.md"
+requires-python = ">=3.12"
+license = { text = "MIT" }
+authors = [{ name = "zarrvis contributors" }]
+keywords = ["zarr", "visualization", "xarray", "ome-zarr", "fastapi"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Web Environment",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Visualization",
+]
+dependencies = [
+    "fastapi>=0.115",
+    "fsspec>=2024.10",
+    "numpy>=2.0",
+    "uvicorn[standard]>=0.32",
+    "xarray>=2024.10",
+    "zarr>=3",
+]
+
+[project.optional-dependencies]
+remote = ["s3fs>=2024.10", "gcsfs>=2024.10"]
+export = ["pillow>=10"]
+
+[project.scripts]
+zarrvis = "zarrvis.cli:main"
+
+[build-system]
+requires = ["uv_build>=0.10.2,<0.11.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "httpx>=0.27",
+    "pytest>=8",
+    "pytest-asyncio>=0.24",
+    "ruff>=0.8",
+    "ty>=0.0.32",
+]
+
+[tool.uv.build-backend]
+module-name = "zarrvis"
+module-root = "src"
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+extend-exclude = ["src/zarrvis/static"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "RUF"]
+ignore = ["E501"]
+
+[tool.ruff.format]
+quote-style = "double"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra --strict-markers"
+asyncio_mode = "auto"
+
+[tool.ty.rules]
+# alpha; keep permissive
+unresolved-import = "warn"
